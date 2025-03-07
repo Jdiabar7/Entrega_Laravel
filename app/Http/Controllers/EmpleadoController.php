@@ -85,18 +85,28 @@ class EmpleadoController extends Controller
      * @param  \App\Models\Empleado  $empleado
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Oficina $oficina, Empleado $empleado)
+    public function update(Request $request, Empleado $empleado)
     {
         $request->validate([
             'nombre' => 'required',
             'primer_apellido' => 'required',
-            // Los campos 'dni' y 'email' no se validan porque no se pueden modificar
+            'dni' => [
+                'required',
+                'regex:/^[0-9]{8}[A-Za-z]$/',
+                'unique:empleados,dni,' . $empleado->id,
+            ],
+            'email' => [
+                'required',
+                'email',
+                'unique:empleados,email,' . $empleado->id,
+            ],
         ]);
 
-        $empleado->update($request->only(['nombre', 'primer_apellido', 'segundo_apellido', 'rol', 'fecha_nacimiento']));
+        $empleado->update($request->all());
 
-        return redirect()->route('oficinas.show', $oficina);
+        return redirect()->route('oficinas.show', $empleado->oficina_id);
     }
+
 
 
 
